@@ -12,6 +12,10 @@ import (
 
 // TODO(rog) better than this
 
+func TestInit(t *testing.T) {
+	charset.CharsetDir = "../../datafiles"
+}
+
 func TestNames(t *testing.T) {
 	charset.Names()
 }

@@ -8,7 +8,3 @@ go:
     - 1.5
     - 1.6
     - tip
-
-before_install:
-    - mkdir -p /usr/local/lib/go-charset
-    - cp -r $HOME/gopath/src/github.com/mantyr/go-charset/datafiles /usr/local/lib/go-charset/
