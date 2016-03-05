@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
-	"code.google.com/p/go-charset/charset"
-	_ "code.google.com/p/go-charset/charset/iconv"
+	"github.com/mantyr/go-charset/charset"
+	_ "github.com/mantyr/go-charset/charset/iconv"
 	"flag"
 	"fmt"
 	"io"
