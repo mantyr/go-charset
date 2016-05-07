@@ -13,6 +13,7 @@ import (
 	"io"
 	"strings"
 	"unicode/utf8"
+	"mime"
 )
 
 // Charset holds information about a given character set.
@@ -60,9 +61,34 @@ func Register(factory Factory) {
 	factories = append(factories, factory)
 }
 
+var CharsetReplace map[string]string
+
+func init() {
+    CharsetReplace = make(map[string]string)
+    CharsetReplace["cp1250"] = "windows-1250"
+    CharsetReplace["cp1251"] = "windows-1251"
+    CharsetReplace["cp1252"] = "windows-1252"
+}
+
+func GetCharsetName(charset string) string {
+	_, params, err := mime.ParseMediaType(charset)
+	if err != nil {
+		return charset
+	}
+	if cs, ok := params["charset"]; ok {
+		charset = cs
+	}
+	
+	if cs, ok := CharsetReplace[charset]; ok {
+		charset = cs
+	}
+	return charset
+}
+
 // NewReader returns a new Reader that translates from the named
 // character set to UTF-8 as it reads r.
 func NewReader(charset string, r io.Reader) (io.Reader, error) {
+	charset = GetCharsetName(charset)
 	tr, err := TranslatorFrom(charset)
 	if err != nil {
 		return nil, err
@@ -75,6 +101,7 @@ func NewReader(charset string, r io.Reader) (io.Reader, error) {
 // The Close is necessary to flush any remaining partially translated
 // characters to the output.
 func NewWriter(charset string, w io.Writer) (io.WriteCloser, error) {
+	charset = GetCharsetName(charset)
 	tr, err := TranslatorTo(charset)
 	if err != nil {
 		return nil, err
