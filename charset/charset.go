@@ -70,13 +70,17 @@ func init() {
     CharsetReplace["cp1252"] = "windows-1252"
 }
 
-func GetCharsetName(charset string) string {
+func GetCharsetNameForContentType(charset string) string {
 	_, params, err := mime.ParseMediaType(charset)
 	if err != nil {
 		return charset
 	}
 	if cs, ok := params["charset"]; ok {
 		charset = cs
+	} else {
+		if strings.Contains(charset, "/") {
+			return "utf-8"                  // for Content-type "text/html" and other
+		}
 	}
 	
 	if cs, ok := CharsetReplace[charset]; ok {
@@ -88,7 +92,6 @@ func GetCharsetName(charset string) string {
 // NewReader returns a new Reader that translates from the named
 // character set to UTF-8 as it reads r.
 func NewReader(charset string, r io.Reader) (io.Reader, error) {
-	charset = GetCharsetName(charset)
 	tr, err := TranslatorFrom(charset)
 	if err != nil {
 		return nil, err
@@ -101,7 +104,6 @@ func NewReader(charset string, r io.Reader) (io.Reader, error) {
 // The Close is necessary to flush any remaining partially translated
 // characters to the output.
 func NewWriter(charset string, w io.Writer) (io.WriteCloser, error) {
-	charset = GetCharsetName(charset)
 	tr, err := TranslatorTo(charset)
 	if err != nil {
 		return nil, err
